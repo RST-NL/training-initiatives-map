@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Research training initiatives in the Netherlands</title>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
+  <style>
+    :root { --ink:#162135; --muted:#637083; --line:#d9e1e8; --paper:#f7f9fb; --blue:#0c6eaa; --blue-soft:#e8f4fb; --gold:#bd7d13; --red:#b44848; --green:#278060; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:var(--paper); font:16px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    button, input, select { font:inherit; }
+    .page { max-width:1320px; margin:0 auto; padding:32px 24px 48px; }
+    header { display:flex; justify-content:space-between; align-items:end; gap:28px; margin-bottom:24px; }
+    h1 { margin:0 0 6px; font-size:clamp(1.7rem, 4vw, 2.5rem); line-height:1.08; letter-spacing:-.035em; }
+    .intro { max-width:720px; margin:0; color:var(--muted); }
+    .count { white-space:nowrap; color:var(--blue); font-weight:700; }
+    .toolbar { display:grid; grid-template-columns:minmax(210px, 1fr) 220px; gap:12px; margin-bottom:18px; }
+    .search, select { width:100%; min-height:44px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink); padding:0 12px; }
+    .layout { display:grid; grid-template-columns:minmax(0, 1.65fr) minmax(300px, .85fr); gap:20px; align-items:start; }
+    .map-panel, .list-panel { border:1px solid var(--line); border-radius:14px; background:#fff; overflow:hidden; }
+    .map-panel { position:relative; }
+    #map { position:relative; height:min(68vh, 680px); min-height:510px; overflow:hidden; background:#eaf5f8; }
+    .map-pin { width:18px; height:18px; padding:0; border:3px solid #fff; border-radius:50%; box-shadow:0 1px 5px rgba(16,31,52,.35); cursor:pointer; }
+    .map-pin.local { background:var(--blue); } .map-pin.regional { background:var(--gold); } .map-pin.national { background:var(--green); } .map-pin.unset { background:var(--red); }
+    .map-pin:focus-visible { outline:3px solid #162135; outline-offset:2px; }
+    #map svg { display:block; width:100%; height:100%; }
+    .country { fill:#f7f1dc; stroke:#b4c9c4; stroke-width:2; vector-effect:non-scaling-stroke; }
+    .place-label { fill:#506172; font-size:20px; font-weight:600; paint-order:stroke; stroke:#eaf5f8; stroke-width:5px; stroke-linejoin:round; }
+    .map-marker { cursor:pointer; stroke:#fff; stroke-width:4; vector-effect:non-scaling-stroke; }
+    .map-marker.local { fill:var(--blue); } .map-marker.regional { fill:var(--gold); } .map-marker.national { fill:var(--green); } .map-marker.unset { fill:var(--red); }
+    .map-marker:focus { outline:none; stroke:#162135; stroke-width:5; }
+    .map-tooltip { position:absolute; z-index:2; width:min(310px, calc(100% - 24px)); padding:13px 14px; border:1px solid var(--line); border-radius:9px; background:#fff; box-shadow:0 6px 18px rgba(16,31,52,.18); }
+    .map-tooltip button { float:right; margin:-4px -5px 0 8px; border:0; background:none; color:var(--muted); cursor:pointer; font-size:1.2rem; }
+    .map-key { display:flex; flex-wrap:wrap; gap:16px; padding:12px 16px; border-top:1px solid var(--line); color:var(--muted); font-size:.88rem; }
+    .key-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; }
+    .key-dot.local { background:var(--blue); } .key-dot.regional { background:var(--gold); } .key-dot.national { background:var(--green); }
+    .list-panel { max-height:780px; overflow:auto; }
+    .list-heading { display:flex; justify-content:space-between; align-items:baseline; padding:16px 16px 12px; border-bottom:1px solid var(--line); }
+    .list-heading h2 { margin:0; font-size:1rem; }
+    .initiative { width:100%; display:block; border:0; border-bottom:1px solid var(--line); padding:14px 16px; background:#fff; text-align:left; color:var(--ink); cursor:pointer; }
+    .initiative:hover, .initiative:focus-visible, .initiative.active { background:var(--blue-soft); outline:none; }
+    .initiative-title { display:block; font-weight:700; line-height:1.25; margin-bottom:5px; }
+    .initiative-meta { display:block; color:var(--muted); font-size:.88rem; }
+    .badge { display:inline-block; margin-top:8px; padding:2px 7px; border-radius:99px; background:#edf1f4; color:#405066; font-size:.75rem; font-weight:700; }
+    .badge.local { background:#e8f4fb; color:#075d91; } .badge.regional { background:#fff2dc; color:#8b5908; } .badge.national { background:#e5f4ed; color:#186246; } .badge.unset { background:#f0f1f3; color:#586273; }
+    .national-strip { margin-top:20px; border-top:4px solid var(--green); background:#fff; padding:20px; }
+    .national-strip h2 { margin:0 0 5px; font-size:1.1rem; } .national-strip p { margin:0 0 14px; color:var(--muted); }
+    .national-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:8px; }
+    .national-item { border:1px solid var(--line); border-radius:8px; padding:10px 12px; background:#fff; }
+    .national-item button { border:0; padding:0; background:transparent; text-align:left; color:var(--ink); cursor:pointer; font-weight:700; }
+    .national-item span { display:block; margin-top:4px; color:var(--muted); font-size:.84rem; }
+    .empty { padding:30px 16px; color:var(--muted); text-align:center; }
+    .contact-callout { margin-top:20px; padding:18px 20px; border:1px solid #b9d8e8; border-left:5px solid var(--blue); border-radius:10px; background:var(--blue-soft); }
+    .contact-callout h2 { margin:0 0 4px; font-size:1.05rem; } .contact-callout p { margin:0; color:#31546b; } .contact-callout a { color:#075d91; font-weight:700; }
+    .caribbean-inset { position:absolute; z-index:3; left:16px; top:16px; width:260px; padding:10px 12px 8px; border:1px solid rgba(22,33,53,.18); border-radius:10px; background:rgba(255,255,255,.96); box-shadow:0 5px 16px rgba(16,31,52,.2); }
+    .caribbean-inset h3 { margin:0; font-size:.8rem; } .caribbean-inset p { margin:2px 0 5px; color:var(--muted); font-size:.68rem; }
+    .caribbean-inset svg { display:block; width:100%; height:116px; background:#eaf5f8; border-radius:6px; }
+    .island { fill:#f7f1dc; stroke:#94b5b4; stroke-width:1.2; } .island-label { fill:#506172; font-size:7px; font-weight:600; text-anchor:middle; }
+    .island-pin { fill:var(--green); stroke:#fff; stroke-width:2; cursor:pointer; } .island-pin:focus { outline:none; stroke:#162135; stroke-width:3; }
+    .popup h3 { margin:0 0 8px; font-size:1rem; line-height:1.25; } .popup p { margin:5px 0; } .popup b { color:#526071; } .popup .id { color:#637083; font-size:.82rem; }
+    .marker { width:16px; height:16px; border:3px solid #fff; border-radius:50%; box-shadow:0 1px 5px rgba(16,31,52,.35); }
+    .marker.local { background:var(--blue); } .marker.regional { background:var(--gold); } .marker.national { background:var(--green); } .marker.unset { background:var(--red); }
+    footer { margin-top:18px; color:var(--muted); font-size:.82rem; }
+    @media (max-width:850px) { .page { padding:22px 14px 32px; } header { display:block; } .count { display:block; margin-top:14px; } .layout { grid-template-columns:1fr; } #map { min-height:430px; height:58vh; } .list-panel { max-height:420px; } }
+    @media (max-width:500px) { .toolbar { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <h1>Research training initiatives in the Netherlands</h1>
+        <p class="intro">Explore the initiatives shared during the workshop. Select a marker or an initiative to see its place, scope and training theme.</p>
+      </div>
+      <div class="count" id="count" aria-live="polite"></div>
+    </header>
+    <div class="toolbar" aria-label="Filter initiatives">
+      <input class="search" id="search" type="search" placeholder="Search initiative, place or theme" aria-label="Search initiatives">
+      <select id="level" aria-label="Filter by level"><option value="">All levels</option><option>Local</option><option>Regional</option><option>National</option><option value="not-specified">Not specified</option></select>
+    </div>
+    <section class="layout" aria-label="Map and initiative list">
+      <div class="map-panel"><div id="map" aria-label="Map of the Netherlands with training initiatives"></div><div class="caribbean-inset" aria-label="Inset map of the Dutch Caribbean"><h3>Dutch Caribbean</h3><p>Schematic inset — not to scale</p><svg viewBox="0 0 236 116" role="img" aria-label="Schematic map of Aruba, Curaçao, Bonaire, Sint Maarten, Saba and Sint Eustatius"><path class="island" d="M22 75 l12 -4 8 5 -4 9 -12 4 -7 -6z"></path><path class="island" d="M52 91 l17 -3 8 7 -8 10 -17 1 -6 -8z"></path><path class="island" d="M86 76 l19 -4 10 7 -5 12 -19 2 -8 -8z"></path><path class="island" d="M185 27 l13 -4 8 5 -5 9 -12 2 -6 -5z"></path><path class="island" d="M211 15 l9 -3 6 4 -3 7 -9 1 -5 -4z"></path><path class="island" d="M219 37 l9 -3 5 4 -3 7 -8 1 -5 -4z"></path><text class="island-label" x="36" y="105">Aruba</text><text class="island-label" x="67" y="114">Curaçao</text><text class="island-label" x="96" y="105">Bonaire</text><text class="island-label" x="194" y="20">Sint Maarten</text><text class="island-label" x="222" y="12">Saba</text><text class="island-label" x="224" y="54">Sint Eustatius</text><circle class="island-pin" cx="36" cy="79" r="5" tabindex="0" role="button" aria-label="DCDC network — Aruba" data-caribbean-id="37"></circle></svg></div><div class="map-key"><span><i class="key-dot local"></i>Local</span><span><i class="key-dot regional"></i>Regional</span><span><i class="key-dot national"></i>National / multi-level</span></div></div>
+      <aside class="list-panel" aria-label="Filtered initiatives"><div class="list-heading"><h2>On the map</h2><span id="map-count"></span></div><div id="list"></div></aside>
+    </section>
+    <section class="contact-callout" aria-label="Suggest an initiative or improvement">
+      <h2>Help us improve the map</h2>
+      <p>Missing your training initiative in this interactive map or want to suggest an improvement? <a href="mailto:rstnl@esciencecenter.nl">Send an e-mail to rstnl@esciencecenter.nl</a>.</p>
+    </section>
+    <footer>Source: Participant cards from SURF Research Day 2026 Challenge Session on Training Initiatives. Entries with incomplete information are retained.</footer>
+  </main>
+  <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+  <script>
+    const initiatives = [
+      {id:1,name:'Training in the large organisations',region:'TNO, Den Haag',level:'National',theme:'',city:'Den Haag'},
+      {id:2,name:'HPC Support',region:'Amsterdam, VU',level:'Local/National',theme:'HPC Support',city:'Amsterdam'},
+      {id:3,name:'RDM Training',region:'',level:'Local',theme:'Training researchers in data management',kind:'unknown'},
+      {id:4,name:'FAIR Data Workshop',region:'Amsterdam, VU',level:'Local',theme:'FAIR data',city:'Amsterdam'},
+      {id:5,name:'Research Software Summer School',region:'Utrecht',level:'National',theme:'Software Development',city:'Utrecht'},
+      {id:6,name:'DC4NES',region:'Delft/National',level:'National',theme:'Digital capacity building',city:'Delft'},
+      {id:7,name:'RDNL National Training Platform for Data Profs',region:'Delft / National',level:'National',theme:'7 areas: RDM/OS/FAIR, RSM, legal/ethical, policy & governance, training, transversal, data infrastructure',city:'Delft'},
+      {id:8,name:'Code Café',region:'Groningen',level:'Local',theme:'Programming',city:'Groningen'},
+      {id:9,name:'RDM Bootcamp',region:'Twente',level:'National',theme:'Brining AI into research life',city:'Enschede'},
+      {id:10,name:'Cloud-NES, Eco-scale, SS-NES (code auditor), fairly',region:'Enschede/NL',level:'National',theme:'Cloud-native research, energy awareness/efficiency, HPC< research software development best practices, RDM',city:'Enschede'},
+      {id:11,name:'Untitled initiative',region:'Deventer/Enschede',level:'National',theme:'Information literacy, research skills, literature research',city:'Deventer'},
+      {id:12,name:'Eco-Scale',region:'Enschede/NL',level:'National',theme:'',city:'Enschede'},
+      {id:13,name:'Container software training',region:'Wageningen',level:'Local',theme:'Containers/Kubenetes',city:'Wageningen'},
+      {id:14,name:'LEARN FAIR (TDCC-LSH project)',region:'Utrecht',level:'National',theme:'Create community of FAIR trainers, create OER materials',city:'Utrecht'},
+      {id:15,name:'Programming Cafe',region:'Amsterdam, VU',level:'Local',theme:'Research Software Management',city:'Amsterdam'},
+      {id:16,name:'Amsterdam Collaboration for Software Carpentries',region:'Amsterdam',level:'Regional',theme:'Basic programming skills',city:'Amsterdam'},
+      {id:17,name:'RST-NL',region:'Amsterdam/National',level:'National',theme:'Research software training network',city:'Amsterdam'},
+      {id:18,name:'HPC Spring School',region:'Utrecht',level:'National',theme:'Large Scale Computing',city:'Utrecht'},
+      {id:22,name:'Digital Lab',region:'Leiden',level:'Local',theme:'',city:'Leiden'},
+      {id:23,name:'Coding Cafe Tu/e Built environment + Coding Cafe Leiden UMC',region:'Eindhoven + Leiden',level:'Local',theme:'Research Software Community Building',city:'Eindhoven'},
+      {id:24,name:'High-Performance Computing Spring/Autumn Schools',region:'Eindhoven',level:'National',theme:'HPC for SIMS & AI',city:'Eindhoven'},
+      {id:25,name:'Databites',region:'Eindhoven',level:'Local',theme:'Short topical meetings on RDM-practices when necessary',city:'Eindhoven'},
+      {id:27,name:'Data in Humanities and Social Sciences',region:'Den Haag/National',level:'National',theme:'Managing + Sharing Sensitive Data in the Humanities',city:'Den Haag'},
+      {id:28,name:'HPC School',region:'Eindhoven',level:'Local/Regional',theme:'HPC School',city:'Eindhoven'},
+      {id:29,name:'JASP Training',region:'Rotterdam',level:'Local',theme:'Open Source Statistics',city:'Rotterdam'},
+      {id:30,name:'RS Training Modules',region:'Delft',level:'Local',theme:'Research Software Training Modules',city:'Delft'},
+      {id:31,name:'The Plant',region:'Maastricht',level:'Local/Regional/National',theme:'',city:'Maastricht'},
+      {id:32,name:'W.I.P. RDM workshops',region:'Heerlen',level:'Local',theme:'Research Data Management + Tools',city:'Heerlen'},
+      {id:35,name:'Health-RI e-learning: onboarding for data stewards in medical research',region:'Amsterdam',level:'National',theme:'See above',city:'Amsterdam'},
+      {id:36,name:'DCC-PO',region:'Enschede (Saxion)',level:'National',theme:'Data & Software Carpentries',city:'Enschede'},
+      {id:37,name:'DCDC network',region:'Aruba, Dutch Caribbean',level:'National',theme:'Data/Software/Open Science',kind:'caribbean'}
+    ];
+    const organisationById = {1:'TNO',2:'Vrije Universiteit Amsterdam',4:'Vrije Universiteit Amsterdam',5:'Utrecht University',6:'Delft University of Technology',7:'Delft University of Technology',8:'University of Groningen',9:'University of Twente',10:'University of Twente',11:'Saxion University of Applied Sciences',12:'TDCC-NES Project',13:'Wageningen University & Research',14:'Health-RI',15:'Vrije Universiteit Amsterdam',16:'Amsterdam Universities, University Medical Centers & University of Applied Sciences',17:'Netherlands eScience Center',18:'Utrecht University',19:'Leiden University',20:'DCC-PO',21:'Eindhoven University of Technology',22:'Leiden University',23:'Eindhoven University of Technology',24:'Eindhoven University of Technology',25:'Eindhoven University of Technology',26:'Leiden University of Applied Sciences',27:'DANS-KNAW',28:'Eindhoven University of Technology',29:'Erasmus University Rotterdam',30:'Delft University of Technology',31:'Maastricht University',32:'Zuyd University of Applied Sciences',35:'Amsterdam UMC',36:'Saxion University of Applied Sciences',37:'University of Aruba'};
+    const organisationFor = i => organisationById[i.id] || 'Not determined from Contact Details';
+    const linkById = {2:'https://vu.nl/en/about-vu/more-about/research-software-support',4:'https://rdm.vu.nl/guides/data-lifecycle.html',5:'https://cdh.uu.nl/2026/02/13/boost-your-coding-skills-at-the-research-software-summer-school-2026/',6:'https://tdcc.nl/nes/projects/building-digital-skills-training-and-lesson-development-capacity-in-the-netherlands-nes-domain/',7:'https://researchdata.nl/',8:'https://www.rug.nl/digital-competence-centre/calendar/2026/code-cafe-26-02-2026?lang=en',9:'https://www.utwente.nl/en/ctd/courses/1000227/data-management-bootcamp/',10:'https://tdcc.nl/nes/projects/cloud-nes-facilitating-cloud-native-data-access-and-processing-for-nes/',11:'https://saxionbibliotheek.nl/',12:'https://tdcc.nl/nes/projects/',13:'https://wiki.anunna.wur.nl/Workshops',14:'https://learn-fair.nl/',15:'https://ubvu.github.io/bytes-and-bites/',17:'https://researchsoftwaretraining.nl/',18:'https://bookings.uu.nl/event/4346947',22:'https://www.universiteitleiden.nl/en/humanities/centre-for-digital-humanities/hub/digital-lab',23:'https://www.becodingcafe.com/',24:'https://supercomputing.tue.nl/hpc-school/',25:'https://rdm.tue.nl/docs/learning-resources/data-bites/',27:'https://dans.knaw.nl/en/training/open-fair-data/',28:'https://supercomputing.tue.nl/hpc-school/',30:'https://www.tudelft.nl/library/data-management/trainingen/trainingen-voor-onderzoekers-en',31:'https://theplant.maastrichtuniversity.nl/workshops/',32:'https://bibliotheek.zuyd.nl/en/practice-oriented-research/team-research-support',35:'https://vedran-kasalica.github.io/FAIR_training_elearning/onboarding-overview',36:'https://dcc-po.nl/',37:'https://dcdc.network/'};
+    linkById[1] = 'https://www.tno.nl/';
+    const linkFor = i => linkById[i.id] || '';
+    const coords = { Amsterdam:[52.3676,4.9041], Utrecht:[52.0907,5.1214], Delft:[52.0116,4.3571], Groningen:[53.2194,6.5665], Enschede:[52.2215,6.8937], Deventer:[52.2556,6.1639], Wageningen:[51.9692,5.6654], Leiden:[52.1601,4.4970], 'Den Haag':[52.0705,4.3007], Eindhoven:[51.4416,5.4697], Rotterdam:[51.9244,4.4777], Maastricht:[50.8514,5.6900], Heerlen:[50.8882,5.9795] };
+    const map = new maplibregl.Map({
+      container:'map', center:[5.32,52.18], zoom:6.7, minZoom:5.9, maxZoom:14,
+      maxBounds:[[3.05,50.55],[7.45,53.85]],
+      style:{version:8, sources:{brt:{type:'raster',tiles:['https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/standaard/EPSG:3857/{z}/{x}/{y}.png'],tileSize:256,attribution:'© Kadaster / PDOK'}},layers:[{id:'brt',type:'raster',source:'brt'}]}
+    });
+    map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
+    map.addControl(new maplibregl.AttributionControl({compact:true}));
+    const markers = new Map(); let selectedId = null;
+    const levelClass = i => i.level.includes('National') ? 'national' : i.level.includes('Regional') ? 'regional' : i.level === 'Local' ? 'local' : 'unset';
+    const search = document.getElementById('search'), level = document.getElementById('level'), list = document.getElementById('list');
+    const shown = () => initiatives.filter(i => { const q=search.value.trim().toLowerCase(); const matchesQuery=!q || [i.name,i.region,i.level,i.theme].join(' ').toLowerCase().includes(q); const normalized=i.level || 'not-specified'; const matchesLevel=!level.value || (level.value==='National' ? i.level.includes('National') : level.value==='Regional' ? i.level.includes('Regional') : level.value==='Local' ? i.level==='Local' : normalized==='not-specified'); return matchesQuery && matchesLevel; });
+    function details(i){ const link=linkFor(i); const linkMarkup=link ? `<a href="${escapeHTML(link)}" target="_blank" rel="noopener noreferrer">Open official initiative page ↗</a>` : 'No official link found'; return `<div class="popup"><span class="id">Initiative ${i.id}</span><h3>${escapeHTML(i.name)}</h3><p><b>Organisation:</b> ${escapeHTML(organisationFor(i))}</p><p><b>Region/city:</b> ${escapeHTML(i.region || 'Not specified')}</p><p><b>Level:</b> ${escapeHTML(i.level || 'Not specified')}</p><p><b>Theme:</b> ${escapeHTML(i.theme || 'Not specified')}</p><p><b>Link:</b> ${linkMarkup}</p></div>`; }
+    function escapeHTML(value){ return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    function locate(i){ const marker=markers.get(i.id); if(marker){ map.flyTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),9),essential:true}); marker.togglePopup(); } select(i.id); }
+    function select(id){ selectedId=id; document.querySelectorAll('[data-id]').forEach(e => e.classList.toggle('active',Number(e.dataset.id)===id)); }
+    function createMarkers(){ initiatives.filter(i=>i.city).forEach(i=>{ const base=coords[i.city], same=initiatives.filter(x=>x.city===i.city).indexOf(i), angle=(same*2.4)+.3, radius=.012*(1+Math.floor(same/5)), point=[base[1]+Math.cos(angle)*radius,base[0]+Math.sin(angle)*radius]; const el=document.createElement('button'); el.type='button'; el.className=`map-pin ${levelClass(i)}`; el.setAttribute('aria-label',`${i.name}, ${i.region || 'location not specified'}`); el.addEventListener('click',()=>select(i.id)); const marker=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat(point).setPopup(new maplibregl.Popup({offset:14,maxWidth:'330px'}).setHTML(details(i))).addTo(map); markers.set(i.id,marker); }); }
+    function card(i, onMap){ const btn=document.createElement('button'); btn.className='initiative'+(selectedId===i.id?' active':''); btn.dataset.id=i.id; btn.innerHTML=`<span class="initiative-title">${escapeHTML(i.name)}</span><span class="initiative-meta">${escapeHTML(i.region || 'Location not specified')}</span><span class="initiative-meta">Organisation: ${escapeHTML(organisationFor(i))}</span><span class="badge ${levelClass(i)}">${escapeHTML(i.level || 'Not specified')}</span>`; btn.addEventListener('click',()=> onMap ? locate(i) : select(i.id)); return btn; }
+    function render(){ const filtered=shown(), mapped=filtered.filter(i=>i.city); document.getElementById('count').textContent=`${filtered.length} of ${initiatives.length} initiatives`; document.getElementById('map-count').textContent=`${mapped.length} locations`; list.replaceChildren(...(mapped.length ? mapped.map(i=>card(i,true)) : [Object.assign(document.createElement('div'),{className:'empty',textContent:'No mapped initiatives match these filters.'})])); initiatives.forEach(i=>{const m=markers.get(i.id);if(m)m.getElement().style.display=filtered.includes(i)?'':'none';}); }
+    map.on('load',()=>{createMarkers();render();});
+    document.querySelectorAll('[data-caribbean-id]').forEach(el=>{ const open=()=>{ const item=initiatives.find(i=>i.id===Number(el.dataset.caribbeanId)); if(item) select(item.id); const popup=document.createElement('div'); popup.className='map-tooltip'; popup.style.left='286px'; popup.style.top='74px'; popup.innerHTML=`<button type="button" aria-label="Close">×</button>${details(item)}`; document.querySelector('.map-panel').appendChild(popup); popup.querySelector('button').addEventListener('click',()=>popup.remove()); }; el.addEventListener('click',open); el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}}); });
+    render(); search.addEventListener('input',render); level.addEventListener('change',render);
+  </script>
+</body>
+</html>
