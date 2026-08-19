@@ -1,5 +1,5 @@
 # Training initiatives in the Netherlands
-
+Link: https://rst-nl.github.io/training-initiatives-map/
 Interactive map of research training initiatives collected during the
 SURF Research Day 2026 Challenge Session on Training Initiatives.
 
