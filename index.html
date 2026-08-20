@@ -6,81 +6,117 @@
   <title>Research training initiatives in the Netherlands</title>
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
   <style>
-    :root { --ink:#162135; --muted:#637083; --line:#d9e1e8; --paper:#f7f9fb; --blue:#0c6eaa; --blue-soft:#e8f4fb; --gold:#bd7d13; --red:#b44848; --green:#278060; }
+    :root { --ink:#14243b; --muted:#5f6b78; --line:#cfd3d5; --paper:#f3f0e9; --surface:#fbfaf6; --blue:#176a9a; --blue-soft:#e7f0f4; --gold:#9b6a20; --green:#26705c; }
     * { box-sizing:border-box; }
-    body { margin:0; color:var(--ink); background:var(--paper); font:16px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    html { background:var(--paper); }
+    body { margin:0; color:var(--ink); background:var(--paper); font:16px/1.45 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     button, input, select { font:inherit; }
-    .page { max-width:1320px; margin:0 auto; padding:32px 24px 48px; }
-    header { display:flex; justify-content:space-between; align-items:end; gap:28px; margin-bottom:24px; }
-    h1 { margin:0 0 6px; font-size:clamp(1.7rem, 4vw, 2.5rem); line-height:1.08; letter-spacing:-.035em; }
-    .intro { max-width:720px; margin:0; color:var(--muted); }
-    .count { white-space:nowrap; color:var(--blue); font-weight:700; }
-    .toolbar { display:grid; grid-template-columns:minmax(210px, 1fr) 220px; gap:12px; margin-bottom:18px; }
-    .search, select { width:100%; min-height:44px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink); padding:0 12px; }
-    .layout { display:grid; grid-template-columns:minmax(0, 1.65fr) minmax(300px, .85fr); gap:20px; align-items:start; }
-    .map-panel, .list-panel { border:1px solid var(--line); border-radius:14px; background:#fff; overflow:hidden; }
+    a { color:var(--blue); text-underline-offset:3px; }
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, summary:focus-visible, [role="button"]:focus-visible { outline:3px solid var(--blue); outline-offset:2px; }
+    .page { max-width:1440px; margin:0 auto; padding:38px 28px 52px; }
+    header { display:grid; grid-template-columns:minmax(0, 860px) auto; justify-content:space-between; align-items:end; gap:32px; padding:0 0 28px; border-bottom:1px solid var(--ink); }
+    .eyebrow { margin:0 0 12px; color:var(--blue); font-size:.76rem; font-weight:750; letter-spacing:.13em; text-transform:uppercase; }
+    h1 { max-width:780px; margin:0 0 12px; font-family:Georgia, "Times New Roman", serif; font-size:clamp(2.2rem, 5vw, 4.35rem); font-weight:500; line-height:.98; letter-spacing:-.035em; }
+    .intro { max-width:720px; margin:0; color:var(--muted); font-size:1.03rem; }
+    .count { min-width:170px; padding-left:18px; border-left:1px solid var(--line); color:var(--ink); font-size:.9rem; font-weight:700; }
+    .toolbar { display:grid; grid-template-columns:minmax(230px, 1fr) minmax(180px, 240px); gap:14px; align-items:end; padding:18px 0; }
+    .field { display:grid; gap:6px; }
+    .field label { color:var(--ink); font-size:.76rem; font-weight:750; letter-spacing:.06em; text-transform:uppercase; }
+    .search, select { width:100%; min-height:44px; border:1px solid #aeb6ba; border-radius:2px; background:var(--surface); color:var(--ink); padding:0 12px; }
+    .view-toggle { display:none; }
+    .layout { display:grid; grid-template-columns:minmax(0, 1.62fr) minmax(330px, .78fr); gap:18px; align-items:start; }
+    .map-panel, .list-panel { border:1px solid var(--line); border-radius:2px; background:var(--surface); overflow:hidden; }
     .map-panel { position:relative; }
-    #map { position:relative; height:min(68vh, 680px); min-height:510px; overflow:hidden; background:#eaf5f8; }
-    .map-pin { width:18px; height:18px; padding:0; border:3px solid #fff; border-radius:50%; box-shadow:0 1px 5px rgba(16,31,52,.35); cursor:pointer; }
-    .map-pin.local { background:var(--blue); } .map-pin.regional { background:var(--gold); } .map-pin.national { background:var(--green); } .map-pin.unset { background:var(--red); }
-    .map-pin:focus-visible { outline:3px solid #162135; outline-offset:2px; }
-    #map svg { display:block; width:100%; height:100%; }
-    .country { fill:#f7f1dc; stroke:#b4c9c4; stroke-width:2; vector-effect:non-scaling-stroke; }
-    .place-label { fill:#506172; font-size:20px; font-weight:600; paint-order:stroke; stroke:#eaf5f8; stroke-width:5px; stroke-linejoin:round; }
-    .map-marker { cursor:pointer; stroke:#fff; stroke-width:4; vector-effect:non-scaling-stroke; }
-    .map-marker.local { fill:var(--blue); } .map-marker.regional { fill:var(--gold); } .map-marker.national { fill:var(--green); } .map-marker.unset { fill:var(--red); }
-    .map-marker:focus { outline:none; stroke:#162135; stroke-width:5; }
-    .map-tooltip { position:absolute; z-index:2; width:min(310px, calc(100% - 24px)); padding:13px 14px; border:1px solid var(--line); border-radius:9px; background:#fff; box-shadow:0 6px 18px rgba(16,31,52,.18); }
-    .map-tooltip button { float:right; margin:-4px -5px 0 8px; border:0; background:none; color:var(--muted); cursor:pointer; font-size:1.2rem; }
-    .map-key { display:flex; flex-wrap:wrap; gap:16px; padding:12px 16px; border-top:1px solid var(--line); color:var(--muted); font-size:.88rem; }
+    #map { position:relative; height:min(68vh, 680px); min-height:520px; overflow:hidden; background:#dfe7e6; }
+    .map-pin { width:20px; height:20px; padding:0; border:3px solid var(--surface); border-radius:50%; box-shadow:0 1px 4px rgba(20,36,59,.42); cursor:pointer; }
+    .map-pin.local { background:var(--blue); } .map-pin.regional { background:var(--gold); } .map-pin.national { background:var(--green); } .map-pin.unset { background:#777f86; }
+    .map-pin.selected { width:24px; height:24px; border-color:var(--ink); box-shadow:0 0 0 4px var(--surface), 0 0 0 6px var(--ink); z-index:2; }
+    .map-tooltip { position:absolute; z-index:4; left:16px; bottom:50px; width:min(330px, calc(100% - 32px)); padding:16px; border:1px solid var(--ink); border-radius:2px; background:var(--surface); box-shadow:0 5px 18px rgba(20,36,59,.14); }
+    .map-tooltip > button { float:right; width:36px; height:36px; margin:-8px -8px 0 8px; border:0; background:none; color:var(--ink); cursor:pointer; font-size:1.25rem; }
+    .map-key { display:flex; flex-wrap:wrap; gap:18px; padding:12px 14px; border-top:1px solid var(--line); color:var(--muted); font-size:.8rem; }
     .key-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; }
     .key-dot.local { background:var(--blue); } .key-dot.regional { background:var(--gold); } .key-dot.national { background:var(--green); }
-    .list-panel { max-height:780px; overflow:auto; }
-    .list-heading { display:flex; justify-content:space-between; align-items:baseline; padding:16px 16px 12px; border-bottom:1px solid var(--line); }
-    .list-heading h2 { margin:0; font-size:1rem; }
-    .initiative { width:100%; display:block; border:0; border-bottom:1px solid var(--line); padding:14px 16px; background:#fff; text-align:left; color:var(--ink); cursor:pointer; }
-    .initiative:hover, .initiative:focus-visible, .initiative.active { background:var(--blue-soft); outline:none; }
-    .initiative-title { display:block; font-weight:700; line-height:1.25; margin-bottom:5px; }
-    .initiative-meta { display:block; color:var(--muted); font-size:.88rem; }
-    .badge { display:inline-block; margin-top:8px; padding:2px 7px; border-radius:99px; background:#edf1f4; color:#405066; font-size:.75rem; font-weight:700; }
-    .badge.local { background:#e8f4fb; color:#075d91; } .badge.regional { background:#fff2dc; color:#8b5908; } .badge.national { background:#e5f4ed; color:#186246; } .badge.unset { background:#f0f1f3; color:#586273; }
-    .national-strip { margin-top:20px; border-top:4px solid var(--green); background:#fff; padding:20px; }
-    .national-strip h2 { margin:0 0 5px; font-size:1.1rem; } .national-strip p { margin:0 0 14px; color:var(--muted); }
-    .national-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:8px; }
-    .national-item { border:1px solid var(--line); border-radius:8px; padding:10px 12px; background:#fff; }
-    .national-item button { border:0; padding:0; background:transparent; text-align:left; color:var(--ink); cursor:pointer; font-weight:700; }
-    .national-item span { display:block; margin-top:4px; color:var(--muted); font-size:.84rem; }
-    .empty { padding:30px 16px; color:var(--muted); text-align:center; }
-    .contact-callout { margin-top:20px; padding:18px 20px; border:1px solid #b9d8e8; border-left:5px solid var(--blue); border-radius:10px; background:var(--blue-soft); }
-    .contact-callout h2 { margin:0 0 4px; font-size:1.05rem; } .contact-callout p { margin:0; color:#31546b; } .contact-callout a { color:#075d91; font-weight:700; }
-    .caribbean-inset { position:absolute; z-index:3; left:16px; top:16px; width:260px; padding:10px 12px 8px; border:1px solid rgba(22,33,53,.18); border-radius:10px; background:rgba(255,255,255,.96); box-shadow:0 5px 16px rgba(16,31,52,.2); }
-    .caribbean-inset summary { cursor:pointer; list-style:none; font-size:.8rem; font-weight:700; } .caribbean-inset summary::-webkit-details-marker { display:none; } .caribbean-inset summary::after { content:'＋'; float:right; color:var(--blue); font-size:1rem; line-height:1; } .caribbean-inset[open] summary::after { content:'−'; }
-    .caribbean-inset h3 { margin:0; font-size:.8rem; } .caribbean-inset p { margin:2px 0 5px; color:var(--muted); font-size:.68rem; }
-    .caribbean-inset svg { display:block; width:100%; height:116px; background:#eaf5f8; border-radius:6px; }
-    .island { fill:#f7f1dc; stroke:#94b5b4; stroke-width:1.2; } .island-label { fill:#506172; font-size:7px; font-weight:600; text-anchor:middle; }
-    .island-pin { fill:var(--green); stroke:#fff; stroke-width:2; cursor:pointer; } .island-pin:focus { outline:none; stroke:#162135; stroke-width:3; }
-    .popup h3 { margin:0 0 8px; font-size:1rem; line-height:1.25; } .popup p { margin:5px 0; } .popup b { color:#526071; } .popup .id { color:#637083; font-size:.82rem; }
-    .marker { width:16px; height:16px; border:3px solid #fff; border-radius:50%; box-shadow:0 1px 5px rgba(16,31,52,.35); }
-    .marker.local { background:var(--blue); } .marker.regional { background:var(--gold); } .marker.national { background:var(--green); } .marker.unset { background:var(--red); }
-    footer { margin-top:18px; color:var(--muted); font-size:.82rem; }
-    @media (max-width:850px) { .page { padding:22px 14px 32px; } header { display:block; } .count { display:block; margin-top:14px; } .layout { grid-template-columns:1fr; } #map { min-height:430px; height:58vh; } .list-panel { max-height:420px; } }
-    @media (max-width:500px) { .toolbar { grid-template-columns:1fr; } }
+    .list-panel { max-height:calc(min(68vh, 680px) + 43px); overflow:auto; scrollbar-color:#aeb6ba transparent; }
+    .list-heading { position:sticky; z-index:2; top:0; display:flex; justify-content:space-between; align-items:baseline; padding:14px 16px; border-bottom:1px solid var(--ink); background:var(--surface); }
+    .list-heading h2 { margin:0; font-family:Georgia, "Times New Roman", serif; font-size:1.15rem; font-weight:500; }
+    .list-heading span { color:var(--muted); font-size:.78rem; }
+    .initiative-card { border-bottom:1px solid var(--line); background:var(--surface); }
+    .initiative-card:last-child { border-bottom:0; }
+    .initiative-card.active { box-shadow:inset 4px 0 0 var(--blue); background:var(--blue-soft); }
+    .initiative { width:100%; display:block; border:0; padding:15px 16px 8px; background:transparent; text-align:left; color:var(--ink); cursor:pointer; }
+    .initiative:hover, .initiative:focus-visible { background:rgba(23,106,154,.07); }
+    .initiative-title { display:block; font-family:Georgia, "Times New Roman", serif; font-size:1.02rem; font-weight:600; line-height:1.22; }
+    .organisation { display:block; margin:4px 0 9px; color:var(--ink); font-size:.83rem; font-weight:700; }
+    .initiative-meta { display:grid; grid-template-columns:82px 1fr; gap:7px; margin-top:3px; color:var(--muted); font-size:.8rem; }
+    .initiative-meta b { color:#3d4b59; font-weight:650; }
+    .card-footer { display:flex; justify-content:space-between; align-items:center; gap:12px; min-height:44px; padding:3px 16px 10px; }
+    .scope { color:#3d4b59; font-size:.73rem; font-weight:750; letter-spacing:.05em; text-transform:uppercase; }
+    .scope::before { content:'Scope · '; color:var(--muted); font-weight:600; }
+    .official-link { padding:9px 0; font-size:.78rem; font-weight:700; white-space:nowrap; }
+    .empty { padding:40px 18px; color:var(--muted); text-align:center; }
+    .contact-callout { display:grid; grid-template-columns:minmax(180px, 280px) 1fr; gap:28px; margin-top:22px; padding:20px 0; border-top:1px solid var(--ink); border-bottom:1px solid var(--line); }
+    .contact-callout h2 { margin:0; font-family:Georgia, "Times New Roman", serif; font-size:1.25rem; font-weight:500; }
+    .contact-callout p { margin:0; color:var(--muted); }
+    .caribbean-inset { position:absolute; z-index:3; left:14px; top:14px; width:250px; padding:9px 11px 8px; border:1px solid rgba(20,36,59,.4); border-radius:2px; background:rgba(251,250,246,.96); box-shadow:0 3px 12px rgba(20,36,59,.13); }
+    .caribbean-inset summary { min-height:28px; cursor:pointer; list-style:none; font-size:.76rem; font-weight:750; line-height:28px; }
+    .caribbean-inset summary::-webkit-details-marker { display:none; }
+    .caribbean-inset summary::after { content:'＋'; float:right; color:var(--blue); font-size:1rem; }
+    .caribbean-inset[open] summary::after { content:'−'; }
+    .caribbean-inset p { margin:2px 0 5px; color:var(--muted); font-size:.68rem; }
+    .caribbean-inset svg { display:block; width:100%; height:112px; background:#e4e9e7; }
+    .island { fill:#f3efe4; stroke:#839c99; stroke-width:1.2; } .island-label { fill:#465765; font-size:7px; font-weight:600; text-anchor:middle; }
+    .island-pin { fill:var(--green); stroke:var(--surface); stroke-width:2; cursor:pointer; }
+    .island-pin.selected { stroke:var(--ink); stroke-width:4; }
+    .popup h3 { margin:3px 0 9px; font-family:Georgia, "Times New Roman", serif; font-size:1.1rem; line-height:1.2; }
+    .popup p { margin:6px 0; font-size:.84rem; } .popup b { color:#465765; } .popup .id { color:var(--muted); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase; }
+    .maplibregl-popup { z-index:5; }
+    .maplibregl-popup-content { border:1px solid var(--ink); border-radius:2px; background:var(--surface); box-shadow:0 5px 18px rgba(20,36,59,.14); }
+    .maplibregl-popup-close-button { width:36px; height:36px; font-size:1.2rem; }
+    footer { margin-top:16px; color:var(--muted); font-size:.78rem; }
+    @media (max-width:850px) {
+      .page { padding:24px 14px 34px; }
+      header { display:block; padding-bottom:20px; }
+      h1 { font-size:clamp(2.4rem, 12vw, 4rem); }
+      .count { margin-top:16px; padding:10px 0 0; border-top:1px solid var(--line); border-left:0; }
+      .toolbar { grid-template-columns:1fr 150px; padding-bottom:12px; }
+      .view-toggle { display:grid; grid-template-columns:1fr 1fr; margin-bottom:12px; padding:3px; border:1px solid var(--ink); background:var(--surface); }
+      .view-toggle button { min-height:44px; border:0; background:transparent; color:var(--ink); cursor:pointer; font-weight:700; }
+      .view-toggle button[aria-pressed="true"] { background:var(--ink); color:var(--surface); }
+      .layout { display:block; }
+      .layout[data-mobile-view="map"] .list-panel { display:none; }
+      .layout[data-mobile-view="results"] .map-panel { display:none; }
+      #map { min-height:440px; height:calc(100svh - 220px); max-height:650px; }
+      .list-panel { max-height:none; overflow:visible; }
+      .list-heading { position:static; }
+      .caribbean-inset { width:218px; }
+      .contact-callout { grid-template-columns:1fr; gap:8px; }
+    }
+    @media (max-width:520px) {
+      .toolbar { grid-template-columns:1fr; }
+      .initiative-meta { grid-template-columns:76px 1fr; }
+      .map-key { gap:10px 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior:auto !important; transition-duration:.01ms !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; }
+    }
   </style>
 </head>
 <body>
   <main class="page">
     <header>
       <div>
+        <p class="eyebrow">Public research training atlas</p>
         <h1>Research training initiatives in the Netherlands</h1>
-        <p class="intro">Explore training initiatives focused on (FAIR) research software & data across the Kingdom of the Netherlands. Select a marker or an initiative to see its place, scope and training theme.</p>
+        <p class="intro">Find training in research software, data, FAIR practice and digital methods across the Kingdom of the Netherlands. Compare where initiatives are based, who they serve and what they teach.</p>
       </div>
       <div class="count" id="count" aria-live="polite"></div>
     </header>
     <div class="toolbar" aria-label="Filter initiatives">
-      <input class="search" id="search" type="search" placeholder="Search initiative, place or theme" aria-label="Search initiatives">
-      <select id="level" aria-label="Filter by level"><option value="">All levels</option><option>Local</option><option>Regional</option><option>National</option><option value="not-specified">Not specified</option></select>
+      <div class="field"><label for="search">Search initiatives</label><input class="search" id="search" type="search" placeholder="Name, organisation, place or theme"></div>
+      <div class="field"><label for="level">Coverage level</label><select id="level"><option value="">All levels</option><option>Local</option><option>Regional</option><option>National</option><option value="not-specified">Not specified</option></select></div>
     </div>
-    <section class="layout" aria-label="Map and initiative list">
+    <div class="view-toggle" aria-label="Choose view"><button type="button" data-view="map" aria-pressed="true">Map</button><button type="button" data-view="results" aria-pressed="false">Results</button></div>
+    <section class="layout" aria-label="Map and initiative list" data-mobile-view="map">
       <div class="map-panel"><div id="map" aria-label="Map of the Netherlands with training initiatives"></div><details class="caribbean-inset" aria-label="Inset map of the Dutch Caribbean" open><summary>Dutch Caribbean</summary><p>Schematic inset — not to scale</p><svg viewBox="0 0 236 116" role="img" aria-label="Schematic map of Aruba, Curaçao, Bonaire, Sint Maarten, Saba and Sint Eustatius"><path class="island" d="M22 75 l12 -4 8 5 -4 9 -12 4 -7 -6z"></path><path class="island" d="M52 91 l17 -3 8 7 -8 10 -17 1 -6 -8z"></path><path class="island" d="M86 76 l19 -4 10 7 -5 12 -19 2 -8 -8z"></path><path class="island" d="M185 27 l13 -4 8 5 -5 9 -12 2 -6 -5z"></path><path class="island" d="M211 15 l9 -3 6 4 -3 7 -9 1 -5 -4z"></path><path class="island" d="M219 37 l9 -3 5 4 -3 7 -8 1 -5 -4z"></path><text class="island-label" x="36" y="105">Aruba</text><text class="island-label" x="67" y="114">Curaçao</text><text class="island-label" x="96" y="105">Bonaire</text><text class="island-label" x="194" y="20">Sint Maarten</text><text class="island-label" x="222" y="12">Saba</text><text class="island-label" x="224" y="54">Sint Eustatius</text><circle class="island-pin" cx="36" cy="79" r="5" tabindex="0" role="button" aria-label="DCDC network — Aruba" data-caribbean-id="37"></circle></svg></details><div class="map-key"><span><i class="key-dot local"></i>Local</span><span><i class="key-dot regional"></i>Regional</span><span><i class="key-dot national"></i>National / multi-level</span></div></div>
       <aside class="list-panel" aria-label="Filtered initiatives"><div class="list-heading"><h2>On the map</h2><span id="map-count"></span></div><div id="list"></div></aside>
     </section>
@@ -131,27 +167,160 @@
     linkById[1] = 'https://www.tno.nl/';
     const linkFor = i => linkById[i.id] || '';
     const coords = { Amsterdam:[52.3676,4.9041], Utrecht:[52.0907,5.1214], Delft:[52.0116,4.3571], Groningen:[53.2194,6.5665], Enschede:[52.2215,6.8937], Deventer:[52.2556,6.1639], Wageningen:[51.9692,5.6654], Leiden:[52.1601,4.4970], 'Den Haag':[52.0705,4.3007], Eindhoven:[51.4416,5.4697], Rotterdam:[51.9244,4.4777], Maastricht:[50.8514,5.6900], Heerlen:[50.8882,5.9795] };
+    const mappedInitiatives = initiatives.filter(i => i.city || i.kind === 'caribbean');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mobileQuery = window.matchMedia('(max-width: 850px)');
     const map = new maplibregl.Map({
       container:'map', center:[5.32,52.18], zoom:6.7, minZoom:5.9, maxZoom:14,
-      maxBounds:[[3.05,50.55],[7.45,53.85]],
-      style:{version:8, sources:{brt:{type:'raster',tiles:['https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/standaard/EPSG:3857/{z}/{x}/{y}.png'],tileSize:256,attribution:'© Kadaster / PDOK'}},layers:[{id:'brt',type:'raster',source:'brt'}]}
+      maxBounds:[[3.05,50.55],[7.45,53.85]], attributionControl:false,
+      style:{version:8, sources:{brt:{type:'raster',tiles:['https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0/standaard/EPSG:3857/{z}/{x}/{y}.png'],tileSize:256,attribution:'© Kadaster / PDOK'}},layers:[{id:'brt',type:'raster',source:'brt',paint:{'raster-saturation':-0.38,'raster-contrast':-0.08,'raster-brightness-min':0.12,'raster-brightness-max':0.92}}]}
     });
     map.addControl(new maplibregl.NavigationControl({showCompass:false}),'top-right');
     map.addControl(new maplibregl.AttributionControl({compact:true}));
-    const markers = new Map(); let selectedId = null;
+
+    const markers = new Map();
+    const popups = new Map();
+    let selectedId = null;
+    const search = document.getElementById('search');
+    const level = document.getElementById('level');
+    const list = document.getElementById('list');
+    const listPanel = document.querySelector('.list-panel');
+    const layout = document.querySelector('.layout');
+    const caribbeanInset = document.querySelector('.caribbean-inset');
+    const caribbeanPin = document.querySelector('[data-caribbean-id]');
     const levelClass = i => i.level.includes('National') ? 'national' : i.level.includes('Regional') ? 'regional' : i.level === 'Local' ? 'local' : 'unset';
-    const search = document.getElementById('search'), level = document.getElementById('level'), list = document.getElementById('list');
-    const shown = () => initiatives.filter(i => { const q=search.value.trim().toLowerCase(); const matchesQuery=!q || [i.name,i.region,i.level,i.theme].join(' ').toLowerCase().includes(q); const normalized=i.level || 'not-specified'; const matchesLevel=!level.value || (level.value==='National' ? i.level.includes('National') : level.value==='Regional' ? i.level.includes('Regional') : level.value==='Local' ? i.level==='Local' : normalized==='not-specified'); return matchesQuery && matchesLevel; });
-    function details(i){ const link=linkFor(i); const linkMarkup=link ? `<a href="${escapeHTML(link)}" target="_blank" rel="noopener noreferrer">Open official initiative page ↗</a>` : 'No official link found'; return `<div class="popup"><span class="id">Initiative ${i.id}</span><h3>${escapeHTML(i.name)}</h3><p><b>Organisation:</b> ${escapeHTML(organisationFor(i))}</p><p><b>Region/city:</b> ${escapeHTML(i.region || 'Not specified')}</p><p><b>Level:</b> ${escapeHTML(i.level || 'Not specified')}</p><p><b>Theme:</b> ${escapeHTML(i.theme || 'Not specified')}</p><p><b>Link:</b> ${linkMarkup}</p></div>`; }
+    const baseLocation = i => i.city || (i.kind === 'caribbean' ? 'Aruba, Dutch Caribbean' : 'Not mapped');
+    const shown = () => mappedInitiatives.filter(i => {
+      const q = search.value.trim().toLowerCase();
+      const matchesQuery = !q || [i.name, organisationFor(i), baseLocation(i), i.region, i.level, i.theme].join(' ').toLowerCase().includes(q);
+      const matchesLevel = !level.value || (level.value === 'not-specified' ? !i.level : i.level.split('/').includes(level.value));
+      return matchesQuery && matchesLevel;
+    });
+
     function escapeHTML(value){ return String(value).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
-    function locate(i){ const marker=markers.get(i.id); if(marker){ map.flyTo({center:marker.getLngLat(),zoom:Math.max(map.getZoom(),9),essential:true}); marker.togglePopup(); } select(i.id); }
-    function select(id){ selectedId=id; document.querySelectorAll('[data-id]').forEach(e => e.classList.toggle('active',Number(e.dataset.id)===id)); }
-    function createMarkers(){ initiatives.filter(i=>i.city).forEach(i=>{ const base=coords[i.city], same=initiatives.filter(x=>x.city===i.city).indexOf(i), angle=(same*2.4)+.3, radius=.012*(1+Math.floor(same/5)), point=[base[1]+Math.cos(angle)*radius,base[0]+Math.sin(angle)*radius]; const el=document.createElement('button'); el.type='button'; el.className=`map-pin ${levelClass(i)}`; el.setAttribute('aria-label',`${i.name}, ${i.region || 'location not specified'}`); el.addEventListener('click',()=>select(i.id)); const marker=new maplibregl.Marker({element:el,anchor:'center'}).setLngLat(point).setPopup(new maplibregl.Popup({offset:14,maxWidth:'330px'}).setHTML(details(i))).addTo(map); markers.set(i.id,marker); }); }
-    function card(i, onMap){ const btn=document.createElement('button'); btn.className='initiative'+(selectedId===i.id?' active':''); btn.dataset.id=i.id; btn.innerHTML=`<span class="initiative-title">${escapeHTML(i.name)}</span><span class="initiative-meta">${escapeHTML(i.region || 'Location not specified')}</span><span class="initiative-meta">Organisation: ${escapeHTML(organisationFor(i))}</span><span class="badge ${levelClass(i)}">${escapeHTML(i.level || 'Not specified')}</span>`; btn.addEventListener('click',()=> onMap ? locate(i) : select(i.id)); return btn; }
-    function render(){ const filtered=shown(), mapped=filtered.filter(i=>i.city); document.getElementById('count').textContent=`${filtered.length} of ${initiatives.length} initiatives`; document.getElementById('map-count').textContent=`${mapped.length} locations`; list.replaceChildren(...(mapped.length ? mapped.map(i=>card(i,true)) : [Object.assign(document.createElement('div'),{className:'empty',textContent:'No mapped initiatives match these filters.'})])); initiatives.forEach(i=>{const m=markers.get(i.id);if(m)m.getElement().style.display=filtered.includes(i)?'':'none';}); }
-    map.on('load',()=>{createMarkers();render();});
-    document.querySelectorAll('[data-caribbean-id]').forEach(el=>{ const open=()=>{ const item=initiatives.find(i=>i.id===Number(el.dataset.caribbeanId)); if(item) select(item.id); const popup=document.createElement('div'); popup.className='map-tooltip'; popup.style.left='286px'; popup.style.top='74px'; popup.innerHTML=`<button type="button" aria-label="Close">×</button>${details(item)}`; document.querySelector('.map-panel').appendChild(popup); popup.querySelector('button').addEventListener('click',()=>popup.remove()); }; el.addEventListener('click',open); el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}}); });
-    render(); search.addEventListener('input',render); level.addEventListener('change',render);
+    function details(i){
+      const link = linkFor(i);
+      const linkMarkup = link ? `<a href="${escapeHTML(link)}" target="_blank" rel="noopener noreferrer">Official initiative page ↗</a>` : 'Official link unavailable';
+      return `<div class="popup"><span class="id">Initiative ${i.id}</span><h3>${escapeHTML(i.name)}</h3><p><b>Organisation:</b> ${escapeHTML(organisationFor(i))}</p><p><b>Base location:</b> ${escapeHTML(baseLocation(i))}</p><p><b>Coverage:</b> ${escapeHTML(i.level || 'Not specified')}</p><p><b>Theme:</b> ${escapeHTML(i.theme || 'Not specified')}</p><p>${linkMarkup}</p></div>`;
+    }
+    function closeAllPopups(){
+      popups.forEach(popup => popup.remove());
+      document.querySelector('.map-tooltip')?.remove();
+    }
+    function select(id){
+      selectedId = id;
+      document.querySelectorAll('.initiative[data-id]').forEach(element => {
+        const isSelected = Number(element.dataset.id) === id;
+        element.setAttribute('aria-pressed', String(isSelected));
+        element.closest('.initiative-card').classList.toggle('active', isSelected);
+      });
+      markers.forEach((marker, markerId) => {
+        const isSelected = markerId === id;
+        marker.getElement().classList.toggle('selected', isSelected);
+        marker.getElement().setAttribute('aria-pressed', String(isSelected));
+      });
+      const caribbeanSelected = Number(caribbeanPin.dataset.caribbeanId) === id;
+      caribbeanPin.classList.toggle('selected', caribbeanSelected);
+      caribbeanPin.setAttribute('aria-pressed', String(caribbeanSelected));
+    }
+    function clearSelection(){
+      closeAllPopups();
+      select(null);
+    }
+    function scrollToListItem(id){
+      const item = document.querySelector(`.initiative[data-id="${id}"]`);
+      if(!item) return;
+      if(mobileQuery.matches) item.scrollIntoView({block:'start', behavior: prefersReducedMotion.matches ? 'auto' : 'smooth'});
+      else listPanel.scrollTop = item.offsetTop-listPanel.offsetTop-document.querySelector('.list-heading').offsetHeight-8;
+    }
+    function moveMapTo(marker){
+      const camera = {center:marker.getLngLat(), zoom:Math.max(map.getZoom(),9)};
+      if(prefersReducedMotion.matches) map.jumpTo(camera); else map.easeTo({...camera,duration:650});
+    }
+    function openMainland(i, {move=false}={}){
+      const marker = markers.get(i.id);
+      if(!marker) return;
+      closeAllPopups();
+      if(move) moveMapTo(marker);
+      const popup = popups.get(i.id);
+      popup.setLngLat(marker.getLngLat()).addTo(map);
+    }
+    function openCaribbean(i){
+      closeAllPopups();
+      caribbeanInset.open = true;
+      const popup = document.createElement('div');
+      popup.className = 'map-tooltip';
+      popup.innerHTML = `<button type="button" aria-label="Close details">×</button>${details(i)}`;
+      document.querySelector('.map-panel').appendChild(popup);
+      popup.querySelector('button').addEventListener('click',()=>popup.remove());
+    }
+    function setMobileView(view){
+      layout.dataset.mobileView = view;
+      document.querySelectorAll('.view-toggle button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.view === view)));
+      if(view === 'map') requestAnimationFrame(()=>map.resize());
+      if(view === 'results' && selectedId) requestAnimationFrame(()=>scrollToListItem(selectedId));
+    }
+    function activate(i, {fromList=false}={}){
+      select(i.id);
+      if(fromList && mobileQuery.matches) setMobileView('map');
+      if(i.kind === 'caribbean') openCaribbean(i); else openMainland(i,{move:fromList});
+      if(!fromList) scrollToListItem(i.id);
+    }
+    function createMarkers(){
+      initiatives.filter(i=>i.city).forEach(i=>{
+        const base = coords[i.city];
+        const same = initiatives.filter(x=>x.city===i.city).indexOf(i);
+        const angle = (same*2.4)+.3;
+        const radius = .012*(1+Math.floor(same/5));
+        const point = [base[1]+Math.cos(angle)*radius,base[0]+Math.sin(angle)*radius];
+        const element = document.createElement('button');
+        element.type = 'button';
+        element.className = `map-pin ${levelClass(i)}`;
+        element.setAttribute('aria-label',`${i.name}, based in ${baseLocation(i)}, coverage ${i.level || 'not specified'}`);
+        element.setAttribute('aria-pressed','false');
+        element.addEventListener('click',event=>{event.stopPropagation();activate(i);});
+        const marker = new maplibregl.Marker({element,anchor:'center'}).setLngLat(point).addTo(map);
+        const popup = new maplibregl.Popup({offset:16,maxWidth:'340px',closeOnMove:false}).setHTML(details(i));
+        markers.set(i.id,marker);
+        popups.set(i.id,popup);
+      });
+    }
+    function card(i){
+      const article = document.createElement('article');
+      article.className = 'initiative-card'+(selectedId===i.id?' active':'');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'initiative';
+      button.dataset.id = i.id;
+      button.setAttribute('aria-pressed',String(selectedId===i.id));
+      button.innerHTML = `<span class="initiative-title">${escapeHTML(i.name)}</span><span class="organisation">${escapeHTML(organisationFor(i))}</span><span class="initiative-meta"><b>Base</b><span>${escapeHTML(baseLocation(i))}</span></span><span class="initiative-meta"><b>Theme</b><span>${escapeHTML(i.theme || 'Not specified')}</span></span>`;
+      button.addEventListener('click',()=>activate(i,{fromList:true}));
+      article.appendChild(button);
+      const footer = document.createElement('div');
+      footer.className = 'card-footer';
+      footer.innerHTML = `<span class="scope">${escapeHTML(i.level || 'Not specified')}</span>${linkFor(i) ? `<a class="official-link" href="${escapeHTML(linkFor(i))}" target="_blank" rel="noopener noreferrer" aria-label="Official page for ${escapeHTML(i.name)}">Official page ↗</a>` : '<span class="official-link">No official link</span>'}`;
+      article.appendChild(footer);
+      return article;
+    }
+    function render(){
+      const filtered = shown();
+      if(selectedId !== null && !filtered.some(i => i.id === selectedId)) clearSelection();
+      document.getElementById('count').textContent = filtered.length === mappedInitiatives.length ? `${mappedInitiatives.length} mapped initiatives` : `${filtered.length} of ${mappedInitiatives.length} mapped initiatives`;
+      document.getElementById('map-count').textContent = `${filtered.length} ${filtered.length === 1 ? 'result' : 'results'}`;
+      list.replaceChildren(...(filtered.length ? filtered.map(card) : [Object.assign(document.createElement('div'),{className:'empty',textContent:'No mapped initiatives match these filters.'})]));
+      markers.forEach((marker,id)=>marker.getElement().style.display=filtered.some(i=>i.id===id)?'':'none');
+      caribbeanPin.style.display = filtered.some(i=>i.kind==='caribbean') ? '' : 'none';
+      if(selectedId) select(selectedId);
+    }
+
+    caribbeanPin.addEventListener('click',()=>activate(mappedInitiatives.find(i=>i.kind==='caribbean')));
+    caribbeanPin.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();activate(mappedInitiatives.find(i=>i.kind==='caribbean'));}});
+    document.querySelectorAll('.view-toggle button').forEach(button=>button.addEventListener('click',()=>setMobileView(button.dataset.view)));
+    if(mobileQuery.matches) caribbeanInset.open = false;
+    createMarkers();
+    render();
+    search.addEventListener('input',render);
+    level.addEventListener('change',render);
   </script>
 </body>
 </html>
