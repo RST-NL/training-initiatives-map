@@ -16,9 +16,11 @@ Link to map: https://rst-nl.github.io/training-initiatives-map/
 The online version of the dataset is cleaned to delete personal contact details, enrich with links to webpages, and retain entries with incomplete information. 
 
 The map reports initiatives that have a mapped mainland or Dutch Caribbean
-location. Search and coverage filters update markers and results together;
-multi-level initiatives appear under each applicable coverage filter. Selecting
-a marker or result synchronizes both views and opens one details popup.
+location. Search, coverage, topic, and location filters update the map and
+results together; multi-level initiatives appear under each applicable coverage
+filter. City markers show the number of matching initiatives and focus the
+results on that location. Selecting a result highlights its city and opens one
+details popup.
 
 On screens up to 850 pixels wide, use the **Map** and **Results** control to
 switch between the two surfaces without losing filters or selection. Controls
