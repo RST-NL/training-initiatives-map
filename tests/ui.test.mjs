@@ -63,10 +63,16 @@ test('details popup is app-owned to prevent duplicate marker toggles', () => {
   assert.match(html, /\.maplibregl-popup\s*\{\s*z-index:\s*5/);
 });
 
-test('PDOK raster receives calm-map paint treatment', () => {
-  assert.match(html, /'raster-saturation':\s*-0\.[1-9]/);
-  assert.match(html, /'raster-contrast':\s*-0\.[0-9]+/);
-  assert.match(html, /'raster-brightness-max':\s*0\.[0-9]+/);
+test('PDOK water raster keeps labels legible with subtle paint treatment', () => {
+  assert.match(html, /'raster-saturation':\s*-0\.08/);
+  assert.match(html, /'raster-contrast':\s*0\.04/);
+  assert.match(html, /'raster-brightness-min':\s*0/);
+  assert.match(html, /'raster-brightness-max':\s*1/);
+});
+
+test('PDOK raster uses the canonical water basemap instead of the standard style', () => {
+  assert.match(html, /https:\/\/service\.pdok\.nl\/kadaster\/brt-achtergrondkaart\/wmts\/v2_0\/water\/EPSG:3857\/\{z\}\/\{x\}\/\{y\}\.png/);
+  assert.doesNotMatch(html, /\/standaard\//);
 });
 
 test('city markers do not wait for PDOK raster loading', () => {

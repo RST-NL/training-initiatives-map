@@ -21,6 +21,7 @@ results together; multi-level initiatives appear under each applicable coverage
 filter. City markers show the number of matching initiatives and focus the
 results on that location. Selecting a result highlights its city and opens one
 details popup.
+The simplified PDOK water basemap retains major place labels while reducing road clutter.
 
 On screens up to 850 pixels wide, use the **Map** and **Results** control to
 switch between the two surfaces without losing filters or selection. Controls
