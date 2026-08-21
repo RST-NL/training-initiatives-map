@@ -4,6 +4,20 @@ import { readFileSync } from 'node:fs';
 
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
+test('RST-NL brand palette uses exact tokens without acid lime', () => {
+  for (const token of ['#FC4C59', '#142832', '#FFFFFF', '#E6F4F8', '#F7F7F7', '#222222']) {
+    assert.match(html, new RegExp(token, 'i'), `missing brand token ${token}`);
+  }
+  assert.doesNotMatch(html, /#C9FF3D/i);
+});
+
+test('focus indicators use white and navy tones across light and dark surfaces', () => {
+  const focusRule = html.match(/button:focus-visible[^}]+}/)?.[0] ?? '';
+
+  assert.match(focusRule, /outline:\s*[^;]*var\(--surface\)/);
+  assert.match(focusRule, /box-shadow:\s*[^;]*var\(--navy\)/);
+});
+
 test('search and level controls use visible labels', () => {
   assert.match(html, /<label[^>]+for="search"[^>]*>\s*Search/i);
   assert.match(html, /<label[^>]+for="level"[^>]*>\s*(Scope|Coverage|Level)/i);
